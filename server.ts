@@ -6,8 +6,10 @@ import process from "node:process";
 //pdfjs magic
 import DOMMatrix from "@thednp/dommatrix";
 import type { PDFDocumentProxy } from "pdfjs";
+import { Buffer } from "node:buffer";
 // deno-lint-ignore no-explicit-any
 (globalThis as any).DOMMatrix = DOMMatrix;
+// deno-lint-ignore no-explicit-any
 const originalProcess = (globalThis as any).process;
 // deno-lint-ignore no-explicit-any
 (globalThis as any).process = undefined;
@@ -238,8 +240,8 @@ server.tool("read_docx", {
     const docxData = await loadDOCX(path);
 
     const result = format === "html"
-      ? await mammoth.convertToHtml({ buffer: docxData.buffer })
-      : await mammoth.extractRawText({ buffer: docxData.buffer });
+      ? await mammoth.convertToHtml({ buffer: Buffer.from(docxData) })
+      : await mammoth.extractRawText({ buffer: Buffer.from(docxData) });
 
     if (!result.value.trim()) {
       return {
@@ -281,7 +283,7 @@ server.tool("docx_info", {
 
     // Extract basic text to get word count estimation
     const textResult = await mammoth.extractRawText({
-      buffer: docxData.buffer,
+      buffer: Buffer.from(docxData),
     });
     const text = textResult.value;
     const wordCount = text.trim() ? text.split(/\s+/).length : 0;

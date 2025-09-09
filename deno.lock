@@ -3,6 +3,7 @@
   "specifiers": {
     "npm:@modelcontextprotocol/sdk@1.17.5": "1.17.5_express@5.1.0_zod@3.25.76",
     "npm:@thednp/dommatrix@2.0.12": "2.0.12",
+    "npm:@types/node@*": "24.2.0",
     "npm:mammoth@1.10.0": "1.10.0",
     "npm:pdfjs-dist@5.4.149": "5.4.149",
     "npm:zod@3.25.76": "3.25.76"
@@ -92,6 +93,12 @@
     },
     "@thednp/dommatrix@2.0.12": {
       "integrity": "sha512-eOshhlSShBXLfrMQqqhA450TppJXhKriaQdN43mmniOCMn9sD60QKF1Axsj7bKl339WH058LuGFS6H84njYH5w=="
+    },
+    "@types/node@24.2.0": {
+      "integrity": "sha512-3xyG3pMCq3oYCNg7/ZP+E1ooTaGB4cG8JWRsqqOYQdbWNY4zbaV0Ennrd7stjiJEFZCaybcIgpTjJWHRfBSIDw==",
+      "dependencies": [
+        "undici-types"
+      ]
     },
     "@xmldom/xmldom@0.8.11": {
       "integrity": "sha512-cQzWCtO6C8TQiYl1ruKNn2U6Ao4o4WBBcbL61yJl84x+j5sOWWFU9X7DpND8XZG3daDppSsigMdfAIl2upQBRw=="
@@ -662,6 +669,9 @@
     },
     "underscore@1.13.7": {
       "integrity": "sha512-GMXzWtsc57XAtguZgaQViUOzs0KTkk8ojr3/xAxXLITqf/3EMwxC0inyETfDFjH/Krbhuep0HNbbjI9i/q3F3g=="
+    },
+    "undici-types@7.10.0": {
+      "integrity": "sha512-t5Fy/nfn+14LuOc2KNYg75vZqClpAiqscVvMygNnlsHBFpSXdJaYtXMcdNLpl/Qvc3P2cB3s6lOV51nqsFq4ag=="
     },
     "unpipe@1.0.0": {
       "integrity": "sha512-pjy2bYhSsufwWlKwPc+l3cN7+wuJlK6uz0YdJEOlQDbl6jo/YlPi4mb8agUkVC8BF7V8NuzeyPNqRksA3hztKQ=="
