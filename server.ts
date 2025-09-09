@@ -1,19 +1,23 @@
-import { McpServer } from "npm:@modelcontextprotocol/sdk@1.17.5/server/mcp.js";
-import { StdioServerTransport } from "npm:@modelcontextprotocol/sdk@1.17.5/server/stdio.js";
-import { z } from "jsr:@zod/zod@4.1.5/v3";
+import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
+import { StdioServerTransport } from "@modelcontextprotocol/sdk/server/stdio.js";
+import { z } from "zod/v3";
 
 //pdfjs magic
-import DOMMatrix from "npm:@thednp/dommatrix@2.0.12";
-globalThis.DOMMatrix = DOMMatrix;
-globalThis.process = undefined;
+import DOMMatrix from "@thednp/dommatrix";
+import type { PDFDocumentProxy } from "pdfjs";
+// deno-lint-ignore no-explicit-any
+(globalThis as any).DOMMatrix = DOMMatrix;
+// deno-lint-ignore no-explicit-any
+(globalThis as any).process = undefined;
 Object.defineProperty(navigator, "platform", {
   value: "Linux",
 });
-const pdfjsLib = await import("npm:pdfjs-dist@5.4.149");
-pdfjsLib.GlobalWorkerOptions.workerSrc = import.meta.resolve("npm:pdfjs-dist@5.4.149/build/pdf.worker.mjs");
+const pdfjsLib = await import("pdfjs");
+pdfjsLib.GlobalWorkerOptions.workerSrc = import.meta.resolve(
+  "pdfjs/build/pdf.worker.mjs",
+);
 // pdfjs writes warning to stdout, which breaks mcp, this worksaround it
-console.log = console.warn
-
+console.log = console.warn;
 
 // Create an MCP server
 const server = new McpServer({
@@ -22,14 +26,16 @@ const server = new McpServer({
 });
 
 // Helper function to load PDF from path or URL
-async function loadPDF(source: string): Promise<any> {
+async function loadPDF(source: string): Promise<PDFDocumentProxy> {
   let data: Uint8Array;
 
-  if (source.startsWith('http://') || source.startsWith('https://')) {
+  if (source.startsWith("http://") || source.startsWith("https://")) {
     // Handle URL
     const response = await fetch(source);
     if (!response.ok) {
-      throw new Error(`Failed to fetch PDF: ${response.status} ${response.statusText}`);
+      throw new Error(
+        `Failed to fetch PDF: ${response.status} ${response.statusText}`,
+      );
     }
     const arrayBuffer = await response.arrayBuffer();
     data = new Uint8Array(arrayBuffer);
@@ -38,7 +44,7 @@ async function loadPDF(source: string): Promise<any> {
     try {
       data = await Deno.readFile(source);
     } catch (error) {
-      throw new Error(`Failed to read PDF file: ${error.message}`);
+      throw new Error(`Failed to read PDF file: ${error}`);
     }
   }
 
@@ -46,18 +52,21 @@ async function loadPDF(source: string): Promise<any> {
 }
 
 // Helper function to parse page range
-function parsePageRange(pageRange: string | undefined, totalPages: number): number[] {
+function parsePageRange(
+  pageRange: string | undefined,
+  totalPages: number,
+): number[] {
   if (!pageRange) {
     return Array.from({ length: totalPages }, (_, i) => i + 1);
   }
 
   const pages: number[] = [];
-  const parts = pageRange.split(',');
+  const parts = pageRange.split(",");
 
   for (const part of parts) {
     const trimmed = part.trim();
-    if (trimmed.includes('-')) {
-      const [start, end] = trimmed.split('-').map(n => parseInt(n.trim()));
+    if (trimmed.includes("-")) {
+      const [start, end] = trimmed.split("-").map((n) => parseInt(n.trim()));
       if (isNaN(start) || isNaN(end)) {
         throw new Error(`Invalid page range format: ${part}`);
       }
@@ -81,7 +90,9 @@ function parsePageRange(pageRange: string | undefined, totalPages: number): numb
 // Tool to read PDF content
 server.tool("read_pdf", {
   path: z.string().describe("The file path or URL to the PDF document to read"),
-  page_range: z.string().optional().describe("Specific page range to extract (e.g., '1-5' or '3,7,10-12'). If not provided, all pages will be extracted."),
+  page_range: z.string().optional().describe(
+    "Specific page range to extract (e.g., '1-5' or '3,7,10-12'). If not provided, all pages will be extracted.",
+  ),
 }, async ({ path, page_range }) => {
   try {
     const pdfDoc = await loadPDF(path);
@@ -97,7 +108,7 @@ server.tool("read_pdf", {
 
       let pageText = "";
       for (const item of textContent.items) {
-        if ('str' in item) {
+        if ("str" in item) {
           pageText += item.str + " ";
         }
       }
@@ -114,12 +125,14 @@ server.tool("read_pdf", {
       return {
         content: [{
           type: "text",
-          text: `No text content found in the specified pages of PDF: ${path}`
+          text: `No text content found in the specified pages of PDF: ${path}`,
         }],
       };
     }
 
-    const summary = `Extracted text from ${pageTexts.length} pages (${pagesToRead.join(', ')}) of PDF: ${path}\nTotal pages in document: ${totalPages}\n\n${fullText}`;
+    const summary = `Extracted text from ${pageTexts.length} pages (${
+      pagesToRead.join(", ")
+    }) of PDF: ${path}\nTotal pages in document: ${totalPages}\n\n${fullText}`;
 
     return {
       content: [{ type: "text", text: summary }],
@@ -128,7 +141,7 @@ server.tool("read_pdf", {
     return {
       content: [{
         type: "text",
-        text: `Error reading PDF: ${error.message}`
+        text: `Error reading PDF: ${error}`,
       }],
     };
   }
@@ -142,15 +155,16 @@ server.tool("pdf_info", {
     const pdfDoc = await loadPDF(path);
     const metadata = await pdfDoc.getMetadata();
 
+    // deno-lint-ignore no-explicit-any
     const info: Record<string, any> = {
       "File Path/URL": path,
       "Total Pages": pdfDoc.numPages,
-      "PDF Version": pdfDoc.pdfInfo?.PDFFormatVersion || "Unknown",
     };
 
     // Add metadata if available
     if (metadata?.info) {
-      const metaInfo = metadata.info;
+      // deno-lint-ignore no-explicit-any
+      const metaInfo = metadata.info as any;
       if (metaInfo.Title) info["Title"] = metaInfo.Title;
       if (metaInfo.Author) info["Author"] = metaInfo.Author;
       if (metaInfo.Subject) info["Subject"] = metaInfo.Subject;
@@ -162,7 +176,7 @@ server.tool("pdf_info", {
 
     const infoText = Object.entries(info)
       .map(([key, value]) => `${key}: ${value}`)
-      .join('\n');
+      .join("\n");
 
     return {
       content: [{ type: "text", text: `PDF Information:\n\n${infoText}` }],
@@ -171,7 +185,7 @@ server.tool("pdf_info", {
     return {
       content: [{
         type: "text",
-        text: `Error getting PDF info: ${error.message}`
+        text: `Error getting PDF info: ${error}`,
       }],
     };
   }

@@ -3,4 +3,14 @@
   "version": "1.0.0",
   "exports": "./server.ts",
   "license": "MIT",
+  "imports": {
+    "@modelcontextprotocol/sdk": "npm:@modelcontextprotocol/sdk@1.17.5",
+    // "zod": "jsr:@zod/zod@4.1.5",
+    "zod": "npm:zod@3.25.76",
+    "@thednp/dommatrix": "npm:@thednp/dommatrix@2.0.12",
+    "pdfjs": "npm:pdfjs-dist@5.4.149"
+  },
+  "publish": {
+    "exclude": ["./readpdf.ts"]
+  }
 }
