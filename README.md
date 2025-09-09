@@ -1,13 +1,13 @@
 # PDF and DOCX Read MCP Server
 
-A Model Context Protocol (MCP) server that provides access to PDF and DOCX document
-reading and text extraction capabilities.
+A Model Context Protocol (MCP) server that provides access to PDF and DOCX
+document reading and text extraction capabilities.
 
 ## Overview
 
 This server provides an MCP interface for reading and extracting text content
-from PDF and DOCX files. It allows AI assistants to access and process documents by
-providing tools to read files from local paths or URLs.
+from PDF and DOCX files. It allows AI assistants to access and process documents
+by providing tools to read files from local paths or URLs.
 
 ## Features
 
@@ -51,7 +51,8 @@ Allows clients to extract text content from DOCX files.
 **Parameters:**
 
 - `path` (string): The file path or URL to the DOCX document to read
-- `format` (string, optional): Output format: 'text' for plain text or 'html' for HTML with formatting (default: 'text')
+- `format` (string, optional): Output format: 'text' for plain text or 'html'
+  for HTML with formatting (default: 'text')
 
 **Returns:**
 
@@ -68,7 +69,8 @@ Retrieves basic information about a DOCX document.
 
 **Returns:**
 
-- DOCX information including file size, word count, character count, and content presence
+- DOCX information including file size, word count, character count, and content
+  presence
 
 ## Usage
 

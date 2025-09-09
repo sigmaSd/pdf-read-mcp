@@ -2,6 +2,7 @@ import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 import { StdioServerTransport } from "@modelcontextprotocol/sdk/server/stdio.js";
 import { z } from "zod/v3";
 import process from "node:process";
+import { readFile } from "node:fs/promises";
 
 //pdfjs magic
 import DOMMatrix from "@thednp/dommatrix";
@@ -56,7 +57,7 @@ async function loadPDF(source: string): Promise<PDFDocumentProxy> {
   } else {
     // Handle local file path
     try {
-      data = await Deno.readFile(source);
+      data = await readFile(source);
     } catch (error) {
       throw new Error(`Failed to read PDF file: ${error}`);
     }
