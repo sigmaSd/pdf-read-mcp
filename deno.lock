@@ -1,11 +1,21 @@
 {
   "version": "5",
   "specifiers": {
+    "jsr:@zod/zod@4.1.5": "4.1.5",
     "npm:@modelcontextprotocol/inspector@*": "0.16.4",
+    "npm:@modelcontextprotocol/sdk@1.17.5": "1.17.5_express@5.1.0_zod@3.25.76",
     "npm:@modelcontextprotocol/sdk@1.8.0": "1.8.0_express@5.1.0_zod@3.24.2",
     "npm:@sylphlab/pdf-reader-mcp@*": "0.3.23_zod@3.25.76",
+    "npm:@thednp/dommatrix@*": "2.0.12",
+    "npm:@thednp/dommatrix@2.0.12": "2.0.12",
     "npm:pdfjs-dist@4.0.379": "4.0.379",
+    "npm:pdfjs-dist@5.4.149": "5.4.149",
     "npm:zod@3.24.2": "3.24.2"
+  },
+  "jsr": {
+    "@zod/zod@4.1.5": {
+      "integrity": "e995ca7d588a835ce333de626c940e242c55b6763c5190e8cbb9fefb7d0fb4ef"
+    }
   },
   "npm": {
     "@cspotcode/source-map-support@0.8.1": {
@@ -637,6 +647,9 @@
         "zod-to-json-schema@3.24.5_zod@3.25.76"
       ],
       "bin": true
+    },
+    "@thednp/dommatrix@2.0.12": {
+      "integrity": "sha512-eOshhlSShBXLfrMQqqhA450TppJXhKriaQdN43mmniOCMn9sD60QKF1Axsj7bKl339WH058LuGFS6H84njYH5w=="
     },
     "@tsconfig/node10@1.0.11": {
       "integrity": "sha512-DcRjDCujK/kCk/cUe8Xz8ZSpm8mS3mNNpta+jGCA6USEDfktlNvm1+IuZ9eTcDbNk41BHwpHHeW+N1lKCz4zOw=="

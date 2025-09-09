@@ -1,7 +1,18 @@
-import { McpServer } from "npm:@modelcontextprotocol/sdk@1.8.0/server/mcp.js";
-import { StdioServerTransport } from "npm:@modelcontextprotocol/sdk@1.8.0/server/stdio.js";
-import { z } from "npm:zod@3.24.2";
-import * as pdfjsLib from "npm:pdfjs-dist@4.0.379";
+import { McpServer } from "npm:@modelcontextprotocol/sdk@1.17.5/server/mcp.js";
+import { StdioServerTransport } from "npm:@modelcontextprotocol/sdk@1.17.5/server/stdio.js";
+import { z } from "jsr:@zod/zod@4.1.5/v3";
+
+//pdfjs magic
+import DOMMatrix from "npm:@thednp/dommatrix@2.0.12";
+globalThis.DOMMatrix = DOMMatrix;
+globalThis.process = undefined;
+Object.defineProperty(navigator, "platform", {
+  value: "Linux",
+});
+const pdfjsLib = await import("npm:pdfjs-dist@5.4.149");
+pdfjsLib.GlobalWorkerOptions.workerSrc = import.meta.resolve("npm:pdfjs-dist@5.4.149/build/pdf.worker.mjs");
+// pdfjs writes warning to stdout, which breaks mcp, this worksaround it
+console.log = console.warn
 
 
 // Create an MCP server
