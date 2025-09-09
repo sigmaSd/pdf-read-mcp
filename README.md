@@ -48,7 +48,7 @@ Retrieves metadata information about a PDF document.
 
 ```bash
 # Run the server with file system permissions
-deno run --allow-read --allow-net server.ts
+deno run --allow-read --allow-net jsr:@sigmasd/pdf-read-mcp
 ```
 
 ## Requirements
@@ -61,7 +61,7 @@ deno run --allow-read --allow-net server.ts
 
 ```bash
 # Start the MCP server
-deno run --allow-read --allow-net server.ts
+deno run --allow-read --allow-net jsr:@sigmasd/pdf-read-mcp
 
 # The server will be available for MCP clients to connect via stdio transport
 ```
