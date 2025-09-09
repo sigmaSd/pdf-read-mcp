@@ -1,13 +1,14 @@
 import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 import { StdioServerTransport } from "@modelcontextprotocol/sdk/server/stdio.js";
 import { z } from "zod/v3";
-import mammoth from "mammoth";
+import process from "node:process";
 
 //pdfjs magic
 import DOMMatrix from "@thednp/dommatrix";
 import type { PDFDocumentProxy } from "pdfjs";
 // deno-lint-ignore no-explicit-any
 (globalThis as any).DOMMatrix = DOMMatrix;
+const originalProcess = (globalThis as any).process;
 // deno-lint-ignore no-explicit-any
 (globalThis as any).process = undefined;
 Object.defineProperty(navigator, "platform", {
@@ -19,6 +20,16 @@ pdfjsLib.GlobalWorkerOptions.workerSrc = import.meta.resolve(
 );
 // pdfjs writes warning to stdout, which breaks mcp, this worksaround it
 console.log = console.warn;
+// deno-lint-ignore no-explicit-any
+(globalThis as any).process = originalProcess;
+
+// disable env so mammoth doesnt require env permission
+Object.defineProperties(process, {
+  env: {
+    value: {},
+  },
+});
+const mammoth = (await import("mammoth")).default;
 
 // Create an MCP server
 const server = new McpServer({
@@ -216,9 +227,11 @@ server.tool("pdf_info", {
 
 // Tool to read DOCX content
 server.tool("read_docx", {
-  path: z.string().describe("The file path or URL to the DOCX document to read"),
+  path: z.string().describe(
+    "The file path or URL to the DOCX document to read",
+  ),
   format: z.enum(["text", "html"]).optional().default("text").describe(
-    "Output format: 'text' for plain text or 'html' for HTML with formatting"
+    "Output format: 'text' for plain text or 'html' for HTML with formatting",
   ),
 }, async ({ path, format }) => {
   try {
@@ -237,11 +250,13 @@ server.tool("read_docx", {
       };
     }
 
-    let output = `Extracted ${format} content from DOCX: ${path}\n\n${result.value}`;
+    let output =
+      `Extracted ${format} content from DOCX: ${path}\n\n${result.value}`;
 
     // Add warnings if any
     if (result.messages && result.messages.length > 0) {
-      output += "\n\nWarnings:\n" + result.messages.map(m => `- ${m.message}`).join("\n");
+      output += "\n\nWarnings:\n" +
+        result.messages.map((m) => `- ${m.message}`).join("\n");
     }
 
     return {
@@ -265,7 +280,9 @@ server.tool("docx_info", {
     const docxData = await loadDOCX(path);
 
     // Extract basic text to get word count estimation
-    const textResult = await mammoth.extractRawText({ buffer: docxData.buffer });
+    const textResult = await mammoth.extractRawText({
+      buffer: docxData.buffer,
+    });
     const text = textResult.value;
     const wordCount = text.trim() ? text.split(/\s+/).length : 0;
     const charCount = text.length;
@@ -275,7 +292,7 @@ server.tool("docx_info", {
       "File Size": `${docxData.length} bytes`,
       "Word Count (approx)": wordCount,
       "Character Count": charCount,
-      "Has Content": text.trim().length > 0 ? "Yes" : "No"
+      "Has Content": text.trim().length > 0 ? "Yes" : "No",
     };
 
     const infoText = Object.entries(info)
