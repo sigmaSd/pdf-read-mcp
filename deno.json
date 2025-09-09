@@ -1,0 +1,11 @@
+{
+  "name": "@sigmasd/pdf-read-mcp",
+  "version": "1.0.0",
+  "exports": "./server.ts",
+  "license": "MIT",
+  "dependencies": {
+    "@modelcontextprotocol/sdk": "npm:@modelcontextprotocol/sdk@1.8.0",
+    "zod": "npm:zod@3.24.2",
+    "pdfjs-dist": "npm:pdfjs-dist@4.0.379"
+  }
+}
