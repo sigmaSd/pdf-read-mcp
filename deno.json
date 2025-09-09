@@ -8,7 +8,8 @@
     // "zod": "jsr:@zod/zod@4.1.5",
     "zod": "npm:zod@3.25.76",
     "@thednp/dommatrix": "npm:@thednp/dommatrix@2.0.12",
-    "pdfjs": "npm:pdfjs-dist@5.4.149"
+    "pdfjs": "npm:pdfjs-dist@5.4.149",
+    "mammoth": "npm:mammoth@1.10.0"
   },
   "publish": {
     "exclude": ["./readpdf.ts"]

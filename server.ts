@@ -1,6 +1,7 @@
 import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 import { StdioServerTransport } from "@modelcontextprotocol/sdk/server/stdio.js";
 import { z } from "zod/v3";
+import mammoth from "mammoth";
 
 //pdfjs magic
 import DOMMatrix from "@thednp/dommatrix";
@@ -21,7 +22,7 @@ console.log = console.warn;
 
 // Create an MCP server
 const server = new McpServer({
-  name: "PDF-Read",
+  name: "PDF-DOCX-Read",
   version: "1.0.0",
 });
 
@@ -49,6 +50,28 @@ async function loadPDF(source: string): Promise<PDFDocumentProxy> {
   }
 
   return await pdfjsLib.getDocument({ data }).promise;
+}
+
+// Helper function to load DOCX from path or URL
+async function loadDOCX(source: string): Promise<Uint8Array> {
+  if (source.startsWith("http://") || source.startsWith("https://")) {
+    // Handle URL
+    const response = await fetch(source);
+    if (!response.ok) {
+      throw new Error(
+        `Failed to fetch DOCX: ${response.status} ${response.statusText}`,
+      );
+    }
+    const arrayBuffer = await response.arrayBuffer();
+    return new Uint8Array(arrayBuffer);
+  } else {
+    // Handle local file path
+    try {
+      return await Deno.readFile(source);
+    } catch (error) {
+      throw new Error(`Failed to read DOCX file: ${error}`);
+    }
+  }
 }
 
 // Helper function to parse page range
@@ -186,6 +209,87 @@ server.tool("pdf_info", {
       content: [{
         type: "text",
         text: `Error getting PDF info: ${error}`,
+      }],
+    };
+  }
+});
+
+// Tool to read DOCX content
+server.tool("read_docx", {
+  path: z.string().describe("The file path or URL to the DOCX document to read"),
+  format: z.enum(["text", "html"]).optional().default("text").describe(
+    "Output format: 'text' for plain text or 'html' for HTML with formatting"
+  ),
+}, async ({ path, format }) => {
+  try {
+    const docxData = await loadDOCX(path);
+
+    const result = format === "html"
+      ? await mammoth.convertToHtml({ buffer: docxData.buffer })
+      : await mammoth.extractRawText({ buffer: docxData.buffer });
+
+    if (!result.value.trim()) {
+      return {
+        content: [{
+          type: "text",
+          text: `No text content found in DOCX: ${path}`,
+        }],
+      };
+    }
+
+    let output = `Extracted ${format} content from DOCX: ${path}\n\n${result.value}`;
+
+    // Add warnings if any
+    if (result.messages && result.messages.length > 0) {
+      output += "\n\nWarnings:\n" + result.messages.map(m => `- ${m.message}`).join("\n");
+    }
+
+    return {
+      content: [{ type: "text", text: output }],
+    };
+  } catch (error) {
+    return {
+      content: [{
+        type: "text",
+        text: `Error reading DOCX: ${error}`,
+      }],
+    };
+  }
+});
+
+// Tool to get DOCX info
+server.tool("docx_info", {
+  path: z.string().describe("The file path or URL to the DOCX document"),
+}, async ({ path }) => {
+  try {
+    const docxData = await loadDOCX(path);
+
+    // Extract basic text to get word count estimation
+    const textResult = await mammoth.extractRawText({ buffer: docxData.buffer });
+    const text = textResult.value;
+    const wordCount = text.trim() ? text.split(/\s+/).length : 0;
+    const charCount = text.length;
+
+    const info = {
+      "File Path/URL": path,
+      "File Size": `${docxData.length} bytes`,
+      "Word Count (approx)": wordCount,
+      "Character Count": charCount,
+      "Has Content": text.trim().length > 0 ? "Yes" : "No"
+    };
+
+    const infoText = Object.entries(info)
+      .map(([key, value]) => `${key}: ${value}`)
+      .join("\n");
+
+    return {
+      content: [{ type: "text", text: `DOCX Information:\n\n${infoText}` }],
+    };
+  } catch (error) {
+    return {
+      content: [{
+        type: "text",
+        text: `Error getting DOCX info: ${error}`,
       }],
     };
   }
