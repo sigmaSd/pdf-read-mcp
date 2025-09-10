@@ -125,11 +125,17 @@ function parsePageRange(
 }
 
 // Tool to read PDF content
-server.tool("read_pdf", {
-  path: z.string().describe("The file path or URL to the PDF document to read"),
-  page_range: z.string().optional().describe(
-    "Specific page range to extract (e.g., '1-5' or '3,7,10-12'). If not provided, all pages will be extracted.",
-  ),
+server.registerTool("read_pdf", {
+  title: "Read PDF",
+  description: "Reads the content of a PDF document",
+  inputSchema: {
+    path: z.string().describe(
+      "The file path or URL to the PDF document to read",
+    ),
+    page_range: z.string().optional().describe(
+      "Specific page range to extract (e.g., '1-5' or '3,7,10-12'). If not provided, all pages will be extracted.",
+    ),
+  },
 }, async ({ path, page_range }) => {
   try {
     const pdfDoc = await loadPDF(path);
@@ -185,8 +191,12 @@ server.tool("read_pdf", {
 });
 
 // Tool to get PDF metadata
-server.tool("pdf_info", {
-  path: z.string().describe("The file path or URL to the PDF document"),
+server.registerTool("pdf_info", {
+  title: "PDF Info",
+  description: "Gets metadata of a PDF document",
+  inputSchema: {
+    path: z.string().describe("The file path or URL to the PDF document"),
+  },
 }, async ({ path }) => {
   try {
     const pdfDoc = await loadPDF(path);
@@ -229,13 +239,17 @@ server.tool("pdf_info", {
 });
 
 // Tool to read DOCX content
-server.tool("read_docx", {
-  path: z.string().describe(
-    "The file path or URL to the DOCX document to read",
-  ),
-  format: z.enum(["text", "html"]).optional().default("text").describe(
-    "Output format: 'text' for plain text or 'html' for HTML with formatting",
-  ),
+server.registerTool("read_docx", {
+  title: "Read DOCX",
+  description: "Reads the content of a DOCX document",
+  inputSchema: {
+    path: z.string().describe(
+      "The file path or URL to the DOCX document to read",
+    ),
+    format: z.enum(["text", "html"]).optional().default("text").describe(
+      "Output format: 'text' for plain text or 'html' for HTML with formatting",
+    ),
+  },
 }, async ({ path, format }) => {
   try {
     const docxData = await loadDOCX(path);
@@ -276,8 +290,12 @@ server.tool("read_docx", {
 });
 
 // Tool to get DOCX info
-server.tool("docx_info", {
-  path: z.string().describe("The file path or URL to the DOCX document"),
+server.registerTool("docx_info", {
+  title: "DOCX Info",
+  description: "Gets information about a DOCX document",
+  inputSchema: {
+    path: z.string().describe("The file path or URL to the DOCX document"),
+  },
 }, async ({ path }) => {
   try {
     const docxData = await loadDOCX(path);
